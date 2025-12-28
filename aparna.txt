@@ -1,0 +1,90 @@
+"""
+Advanced NLP Pipeline using NLTK
+Includes:
+1. Tokenization
+2. POS Tagging
+3. WordNet Semantic Analysis
+4. Stemming
+5. POS-aware Lemmatization
+"""
+
+import nltk
+from nltk.tokenize import word_tokenize
+from nltk.corpus import wordnet
+from nltk.stem import PorterStemmer, WordNetLemmatizer
+from nltk import pos_tag
+
+# -------------------- DOWNLOAD REQUIRED DATA --------------------
+nltk.download('punkt')
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('averaged_perceptron_tagger')
+
+# -------------------- INPUT TEXT --------------------
+text = "Students were analyzing linguistic data using advanced NLP techniques."
+
+# -------------------- 1. TOKENIZATION --------------------
+tokens = word_tokenize(text)
+
+# -------------------- 2. POS TAGGING --------------------
+pos_tags = pos_tag(tokens)
+
+# -------------------- 3. WORDNET POS MAPPING FUNCTION --------------------
+def map_pos_tag(treebank_tag):
+    """
+    Converts Treebank POS tags to WordNet POS tags
+    """
+    if treebank_tag.startswith('J'):
+        return wordnet.ADJ
+    elif treebank_tag.startswith('V'):
+        return wordnet.VERB
+    elif treebank_tag.startswith('N'):
+        return wordnet.NOUN
+    elif treebank_tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return wordnet.NOUN
+
+# -------------------- 4. STEMMING --------------------
+stemmer = PorterStemmer()
+stemmed_tokens = {word: stemmer.stem(word) for word in tokens}
+
+# -------------------- 5. LEMMATIZATION (POS-AWARE) --------------------
+lemmatizer = WordNetLemmatizer()
+lemmatized_tokens = {
+    word: lemmatizer.lemmatize(word, map_pos_tag(tag))
+    for word, tag in pos_tags
+}
+
+# -------------------- 6. WORDNET SEMANTIC ANALYSIS --------------------
+def wordnet_analysis(word):
+    synsets = wordnet.synsets(word)
+    if not synsets:
+        return "No semantic data found"
+    return {
+        "Definition": synsets[0].definition(),
+        "Examples": synsets[0].examples()
+    }
+
+semantic_info = wordnet_analysis("analyzing")
+
+# -------------------- OUTPUT SECTION --------------------
+print("\n🔹 Original Text:")
+print(text)
+
+print("\n🔹 Tokens:")
+print(tokens)
+
+print("\n🔹 POS Tags:")
+print(pos_tags)
+
+print("\n🔹 Stemmed Tokens:")
+for k, v in stemmed_tokens.items():
+    print(f"{k} → {v}")
+
+print("\n🔹 Lemmatized Tokens:")
+for k, v in lemmatized_tokens.items():
+    print(f"{k} → {v}")
+
+print("\n🔹 WordNet Semantic Analysis (example word):")
+print(semantic_info)
